@@ -11,6 +11,34 @@ unlist(controls)
 # previous function
 controls <- filter(data, Diet=="chow") %>% select(Bodyweight) %>% unlist
 
+treatment <- filter(data, Diet=="hf") %>% select(Bodyweight) %>% unlist
+
+population <- read.csv("femaleControlsPopulation.csv")
+population <- unlist(population)
+
+# get a random sample
+sample(population, 12)
+mean(sample(population, 12))
+
+obs <- mean(treatment) - mean(controls)
+
+# null hypothesis is true
+n <- 10000
+nulls <- vector("numeric", n)
+for (i in 1:n) {
+  control <- sample(population, 12)
+  treatment <- sample(population, 12)
+  nulls[i] <- mean(treatment) - mean(control)
+}
+
+# proportion of times nulls is greater than observation 
+mean(nulls > obs)
+
+# p-value: probability that an outcome from the null distribution 
+# is bigger than what we observed when the null hypothesis is true
+mean(abs(nulls) > obs)
+
+
 install.packages("ggplot2")
 library(ggplot2)
 data("msleep")
@@ -51,3 +79,21 @@ boxplot(men$time)
 women <- filter(nym.2002, gender=="Female")
 hist(women$time)
 boxplot(women$time)
+
+install.packages("downloader")
+library(downloader)
+url <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv"
+filename <- basename(url)
+download(url, destfile=filename)
+x <- unlist( read.csv(filename))
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+set.seed(1)
+
+m <- 10000
+nulls_mice <- vector("numeric", m)
+for (i in 1:10000) {
+  sample_mice <- sample(x, 5)
+  nulls_mice[i] <- mean(sample_mice)
+}
+mean(abs(mean(x) - nulls_mice) > 1)
+
