@@ -97,3 +97,104 @@ for (i in 1:10000) {
 }
 mean(abs(mean(x) - nulls_mice) > 1)
 
+# make averages5
+set.seed(1)
+n <- 1000
+averages5 <- vector("numeric",n)
+for(i in 1:n){
+  X <- sample(x,5)
+  averages5[i] <- mean(X)
+}
+
+# make averages50
+set.seed(1)
+n <- 1000
+averages50 <- vector("numeric",n)
+for(i in 1:n){
+  X <- sample(x,50)
+  averages50[i] <- mean(X)
+}
+mean(averages50<25 & averages50>23)
+
+pnorm(25, 23.9, 0.43) - pnorm(23, 23.9, 0.43)
+
+# probability distribution exercises
+install.packages("gapminder")
+library(gapminder)
+data(gapminder)
+head(gapminder)
+
+data1952 = gapminder[gapminder$year==1952,]
+x = data1952$lifeExp
+mean(x<= 40)
+
+
+prop = function(q) {
+  mean(x <= q)
+}
+prop(40)
+qs = seq(from=min(x), to=max(x), length=20)
+qs
+props = sapply(qs, prop)
+plot(qs, props)
+props = sapply(qs, function(q) mean(x <= q))
+plot(ecdf(x))
+
+dat <- read.csv("mice_pheno.csv")
+dat <- na.omit( dat )
+library(dplyr)
+x <- filter(dat, Diet=="chow") %>% filter(Sex=="F") %>% select(Bodyweight) %>% unlist
+mean(x)
+library(rafalib)
+popsd(x)
+set.seed(2)
+X <- sample(x,25)
+mean(X)
+y <- filter(dat, Diet=="hf") %>% filter(Sex=="F") %>% select(Bodyweight) %>% unlist
+mean(y)
+popsd(y)
+set.seed(2)
+Y <- sample(y,25)
+mean(Y)
+abs(mean(x)-mean(y)) - abs(mean(X) - mean(Y))
+pnorm(3, 0, 1) - pnorm(-3, 0, 1)
+y <- filter(dat, Sex=="M") %>% filter(Diet=="chow") %>% select(Bodyweight) %>% unlist
+z <- ( y - mean(y) ) / popsd(y)
+mean( abs(z) <= 3)
+
+y <- filter(dat, Sex=="M" & Diet=="chow") %>% select(Bodyweight) %>% unlist
+set.seed(1)
+avgs <- replicate(10000, mean( sample(y, 25)))
+mypar(1,2)
+hist(avgs)
+qqnorm(avgs)
+qqline(avgs)
+mean(avgs)
+popsd(avgs)
+
+dat <- read.csv("femaleMiceWeights.csv")
+
+set.seed(1)
+n <- 100
+sides <- 6
+p <- 1/sides
+zs <- replicate(10000,{
+  x <- sample(1:sides,n,replace=TRUE)
+  (mean(x==6) - p) / sqrt(p*(1-p)/n)
+}) 
+qqnorm(zs)
+abline(0,1)#confirm it's well approximated with normal distribution
+mean(abs(zs) > 2)
+
+
+X <- filter(dat, Diet=="chow") %>% select(Bodyweight) %>% unlist
+Y <- filter(dat, Diet=="hf") %>% select(Bodyweight) %>% unlist
+mean(X)
+sd(X)
+2*(1 - pnorm(2/sd(X) * sqrt(12)))
+
+
+se <- sqrt((sd(X)**2)/12 + (sd(Y)**2)/12)
+t.test(Y,X)
+(mean(Y) - mean(X))/se
+pnorm(-2.0552) + (1 - pnorm(2.0552))
